@@ -91,6 +91,17 @@ BL2_SOURCES		+=	common/desc_image_load.c			\
 				plat/microchip/common/lan966x_sjtag.c		\
 				plat/microchip/lan969x/common/lan969x_io_storage.c
 
+ifeq (${SPD},opteed)
+BL2_SOURCES		+=	lib/optee/optee_utils.c
+# OP-TEE's pager and pageable images, next to its header
+ifneq (${BL32_EXTRA1},)
+$(eval $(call TOOL_ADD_IMG,bl32_extra1,--tos-fw-extra1))
+endif
+ifneq (${BL32_EXTRA2},)
+$(eval $(call TOOL_ADD_IMG,bl32_extra2,--tos-fw-extra2))
+endif
+endif
+
 BL2U_SOURCES		+=	drivers/arm/tzc/tzc400.c			\
 				${LAN969X_PLAT_COMMON}/lan969x_bl2u_setup.c	\
 				${LAN969X_PLAT_COMMON}/lan969x_tz.c		\

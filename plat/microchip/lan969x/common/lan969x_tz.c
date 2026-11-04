@@ -10,6 +10,7 @@
 #include <drivers/microchip/lan966x_trng.h>
 #include <drivers/microchip/tz_matrix.h>
 #include <lib/mmio.h>
+#include <platform_def.h>
 
 #include "lan966x_regs.h"
 #include "lan969x_private.h"
@@ -27,14 +28,24 @@ typedef struct {
 	unsigned long long region_top;  /* Not for region 0 */
 } lan969x_tcreg_t;
 
+#if defined(SPD_opteed)
+/* OP-TEE's DDR is reachable from the secure world only */
+#define LAN969X_TZC_BL32_RULE \
+	{ 1, TZC_REGION_S_RDWR, 0, BL32_BASE, BL32_LIMIT - 1, },
+#else
+#define LAN969X_TZC_BL32_RULE
+#endif
+
 /* Only NS access by default */
 static const lan969x_tcreg_t css_rules[] = {
-	{ 0, TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS, }
+	{ 0, TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS, },
+	LAN969X_TZC_BL32_RULE
 };
 
 /* Only NS access by default */
 static const lan969x_tcreg_t hss_rules[] = {
-	{ 0, TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS, }
+	{ 0, TZC_REGION_S_RDWR, PLAT_ARM_TZC_NS_DEV_ACCESS, },
+	LAN969X_TZC_BL32_RULE
 };
 
 static void setup_ns_access(uintptr_t gpv, uintptr_t tzpm)

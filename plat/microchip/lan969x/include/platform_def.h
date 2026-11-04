@@ -89,6 +89,19 @@
 #define BL31_SIZE		SIZE_K(128)
 #define BL31_LIMIT		(BL31_BASE + BL31_SIZE)
 
+/*
+ * BL32 - OP-TEE, in DDR right above the BL33 window
+ */
+#if defined(SPD_opteed)
+#define BL32_BASE		(LAN969X_DDR_BASE + LAN969X_DDR_ATF_SIZE)
+#define BL32_SIZE		SIZE_M(32)
+#define BL32_LIMIT		(BL32_BASE + BL32_SIZE)
+
+/* Pageable part of OP-TEE, if any, goes at the end of the region */
+#define LAN969X_OPTEE_PAGEABLE_LOAD_SIZE	SIZE_M(4)
+#define LAN969X_OPTEE_PAGEABLE_LOAD_BASE	(BL32_LIMIT - LAN969X_OPTEE_PAGEABLE_LOAD_SIZE)
+#endif
+
 /* NS image */
 #if defined(LAN969X_LMSTAX)
 /* NS is in 'left-over' SRAM between BL31-BL1RW */
@@ -125,6 +138,8 @@
 
 #if defined(IMAGE_BL1)
 #define MAX_XLAT_TABLES			3
+#elif defined(IMAGE_BL2) && defined(SPD_opteed)
+#define MAX_XLAT_TABLES			5
 #elif defined(IMAGE_BL2)
 #define MAX_XLAT_TABLES			4
 #elif defined(IMAGE_BL2U)

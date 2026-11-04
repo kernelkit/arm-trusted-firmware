@@ -12,6 +12,9 @@
 #include <lib/mmio.h>
 #include <libfdt.h>
 #include <plat/common/platform.h>
+#if defined(SPD_opteed)
+#include <lib/optee_utils.h>
+#endif
 
 #include "lan969x_regs.h"
 #include "lan969x_private.h"
@@ -44,6 +47,28 @@ bl_load_info_t *plat_get_bl_image_load_info(void)
 {
 	return get_bl_load_info_from_mem_params_desc();
 }
+
+#if defined(SPD_opteed)
+int bl2_plat_handle_post_image_load(unsigned int image_id)
+{
+	bl_mem_params_node_t *bl32, *pager, *paged;
+
+	if (image_id != BL32_IMAGE_ID)
+		return 0;
+
+	bl32 = get_bl_mem_params_node(BL32_IMAGE_ID);
+	pager = get_bl_mem_params_node(BL32_EXTRA1_IMAGE_ID);
+	paged = get_bl_mem_params_node(BL32_EXTRA2_IMAGE_ID);
+	assert(bl32 && pager && paged);
+
+	/* The header names where the pager and pageable parts go */
+	if (parse_optee_header(&bl32->ep_info, &pager->image_info,
+			       &paged->image_info) != 0)
+		WARN("OPTEE header parse error.\n");
+
+	return 0;
+}
+#endif
 
 /*******************************************************************************
  * This function returns the list of executable images.

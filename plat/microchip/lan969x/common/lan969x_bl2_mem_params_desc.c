@@ -39,6 +39,52 @@ static bl_mem_params_node_t bl2_mem_params_descs[] = {
 		.next_handoff_image_id = BL33_IMAGE_ID,
 # endif
 	},
+# if defined(BL32_BASE)
+	/* Fill BL32 related information */
+	{
+		.image_id = BL32_IMAGE_ID,
+
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+				      VERSION_2, entry_point_info_t,
+				      SECURE | EXECUTABLE),
+		.ep_info.pc = BL32_BASE,
+		.ep_info.spsr = SPSR_64(MODE_EL1, MODE_SP_ELX,
+					DISABLE_ALL_EXCEPTIONS),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+				      VERSION_2, image_info_t, 0),
+		.image_info.image_base = BL32_BASE,
+		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
+		.next_handoff_image_id = BL33_IMAGE_ID,
+	},
+	/* OP-TEE's pager image, placed by the BL32 header */
+	{
+		.image_id = BL32_EXTRA1_IMAGE_ID,
+
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+				      VERSION_2, entry_point_info_t,
+				      SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+				      VERSION_2, image_info_t,
+				      IMAGE_ATTRIB_SKIP_LOADING),
+		.image_info.image_base = BL32_BASE,
+		.image_info.image_max_size = BL32_LIMIT - BL32_BASE,
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+	/* OP-TEE's pageable image, if any */
+	{
+		.image_id = BL32_EXTRA2_IMAGE_ID,
+
+		SET_STATIC_PARAM_HEAD(ep_info, PARAM_EP,
+				      VERSION_2, entry_point_info_t,
+				      SECURE | NON_EXECUTABLE),
+		SET_STATIC_PARAM_HEAD(image_info, PARAM_EP,
+				      VERSION_2, image_info_t,
+				      IMAGE_ATTRIB_SKIP_LOADING),
+		.image_info.image_base = LAN969X_OPTEE_PAGEABLE_LOAD_BASE,
+		.image_info.image_max_size = LAN969X_OPTEE_PAGEABLE_LOAD_SIZE,
+		.next_handoff_image_id = INVALID_IMAGE_ID,
+	},
+# endif
 	/* Fill BL33 related information */
 	{
 		.image_id = BL33_IMAGE_ID,
