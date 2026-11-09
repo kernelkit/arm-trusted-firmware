@@ -9,6 +9,10 @@
 #include "lan969x.dtsi"
 #include "lan969x-tactical-1000-v3-ddr.dtsi"
 
+&board {
+	board-number = <1000>; /* Not probeable, nothing else is needed */
+};
+
 &emmc_clk {
 	clock-frequency = <100000000>;
 };
